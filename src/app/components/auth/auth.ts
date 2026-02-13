@@ -8,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class Auth {
 
+  titulo="Hola"
+  autenticando = false;
+  mensajeError="ERROR"
+  IniciarSesionConGoogle() {
+    
+  }
+
 }

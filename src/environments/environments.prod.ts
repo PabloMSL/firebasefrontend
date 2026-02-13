@@ -1,17 +1,17 @@
 export const environment = {
   production: true,
-   firebaseConfig : {
-    apiKey: "AIzaSyBskggV23zZvc3Q5lxMZ-gPUtRzGdm8xck",
-    authDomain: "chatangularsito.firebaseapp.com",
-    projectId: "chatangularsito",
-    storageBucket: "chatangularsito.firebasestorage.app",
-    messagingSenderId: "103993886206",
-    appId: "1:103993886206:web:c39ee2383f7506de94ecaf",
-    measurementId: "G-NTV6454J97"
+  firebaseConfig : {
+    apiKey: "AIzaSyA3PSL9CcFVixpFb6p9-EA__Nl2_W6xKas",
+    authDomain: "chatangular-d0a85.firebaseapp.com",
+    projectId: "chatangular-d0a85",
+    storageBucket: "chatangular-d0a85.firebasestorage.app",
+    messagingSenderId: "330124363981",
+    appId: "1:330124363981:web:bbcd7bbf470921b5140184",
+    measurementId: "G-W5LN2DY1TH"
   },
     gemini:{
     apiURL:"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-    apikey:"AIzaSyC3aAfVGx4UMlAS6lqYzwEaVjZ6Sa8iJ4M",
+    apikey:"AIzaSyDcoyDADczUJtRPdIwvh1xfbPoiJ9AIwEE",
   }
 };
 
