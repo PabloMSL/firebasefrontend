@@ -7,5 +7,10 @@ import { Component } from '@angular/core';
   styleUrl: './auth.css',
 })
 export class Auth {
+  titulo="Hola"
+  autenticando=false
+  mensajeError="El usuario no existe"
+  IniciarSesionConGoogle() {
 
+  }
 }
