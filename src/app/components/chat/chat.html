@@ -1,1 +1,44 @@
-<p>chat works! El chatsito de mi página si esta funcionando brrrr</p>
+<!--Contenedor Completo del Chat-->
+<div class="chat-container">
+    <header class="chat-header">
+        <div class="user-info">
+            <img src="https://i.redd.it/hmht9vfu2rhg1.jpeg" 
+            alt="Imagen del usuario"
+            class="user-avatar"
+            (error)="manejoErrorImagen()">
+            <div class="user-details">
+                <h2 class="user-name">{{nombre}}</h2>
+                <p class="user-email">{{email}}</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button 
+            class="logout-btn"
+            (click)="cerrarSesion()"
+            >Cerrar Sesión</button>
+            </div>
+    </header>
+
+    <main class="chat-messages">
+        <!--Validacion en caso de que no haya mensajes-->
+        @if(mensajes.length === 0 && !cargandoHistorial){
+            <div class="welcome-message">
+                <div class="welcome-content">
+                    <div class="welcome-icon">🤖👽🥵</div>
+                    <h2>¡HOLA, SOY TU ASISTENTE VIRTUAL!</h2>
+                    <p>Puedo ayudarte con tus tareas, preguntame...!</p>
+                    <p class="welcome-tip"><strong>Consejo</strong>Se específico en tus preguntas
+                    para obtener mejores resultados</p>
+                </div>
+            </div>
+        }
+
+        <!--En caso de que si haya mensajes-->
+        @if(cargandoHistorial){
+            <div class="loading-history">
+                <div class="loading-spinner"></div>
+                <p>Cargando tu historial de conversaciones</p>
+            </div>
+        }
+    </main>
+</div>
