@@ -1,7 +1,7 @@
 export interface MensajeChat{
     id: String,
     contenido: String,
-    usuario: String,
+    usuarioId: String,
     fechaEnvio: Date,
     estado: 'Enviado' | 'Enviando' | 'Error' | 'Temporal'
     tipo: 'Usuario' | 'Asistente'

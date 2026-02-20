@@ -14,6 +14,42 @@ export class Chat {
     console.log('Error al cargar la imagen del usuario');
   }
   mensajes: MensajeChat[] = []
-  cargandoHistorial = 1
+  cargandoHistorial = true
+  asistenteEscribiendo = true
+  asistenteEnviando = false
   cerrarSesion(){}
+
+  trackByMensaje(index: number, mensaje: MensajeChat){}
+
+  formatearMensajeAsistente(mensaje:string){}
+
+  enviarMensaje(){}
+
+  ngOnInit(){
+    this.mensajes = this.generarMensajeDemo();
+  }
+
+  private generarMensajeDemo():MensajeChat[]{
+  const ahora =new Date();
+
+  return [
+    {
+      id:'id1',
+      contenido:'Hola eres el asistente?',
+      tipo: 'Usuario',
+      fechaEnvio: new Date(ahora.getTime()),
+      estado: 'Enviado',
+      usuarioId: 'u1'
+    },{
+      id:'id2',
+      contenido:'Hola soy tu asistente',
+      tipo: 'Asistente',
+      fechaEnvio: new Date(ahora.getTime()),
+      estado: 'Enviado',
+      usuarioId: 'a1'
+    }
+  ]
+  }
 }
+
+
