@@ -1,5 +1,5 @@
 export const environment = {
-    production: false,
+    production: true,
     firebaseConfig :{
         apiKey: "AIzaSyBZWlM1GyQOg8HzHHG2kGyXFMJ9cxzZSCo",
         authDomain: "chatmozucaangular.firebaseapp.com",
@@ -14,5 +14,3 @@ export const environment = {
         apiKey:"AIzaSyDXTyhPIOmiAxlS6szCwut3-c1WOAz6FNY"
     }
 }
-
-
