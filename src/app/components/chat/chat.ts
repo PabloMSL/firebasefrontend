@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, ɵisComponentDefPendingResolution } from '@angular/core';
 import { MensajeChat } from '../../../models/chat';
 import { CommonModule } from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -46,10 +46,21 @@ export class Chat {
   }
   trackByMensaje(index: number, mensaje: MensajeChat){}
 
-  formatearMensajeAsistente(mensaje:string){}
+  formatearMensajeAsistente(contenido:string){
+    return contenido
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+  }
+
+  formatearhora(fecha: Date): string{
+    return fecha.toLocaleDateString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
 
   enviarMensaje(){}
-
   ngOnInit(){
     this.mensajes = this.generarMensajeDemo();
   }

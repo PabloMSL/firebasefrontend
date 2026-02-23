@@ -59,7 +59,7 @@
                                 <p>{{mensaje.contenido}}</p>
                             </div>
                             <div class="message-time">
-                                <p>{{mensaje.fechaEnvio}}</p>
+                                <p>{{formatearhora(mensaje.fechaEnvio)}}</p>
                             </div>
                         </div>
                     }
@@ -75,7 +75,7 @@
                                     <p [innerHTML]="formatearMensajeAsistente(mensaje.contenido)"></p>
                                 </div>
                                 <div class="message-time">
-                                    {{mensaje.fechaEnvio}}
+                                    {{ formatearhora(mensaje.fechaEnvio) }}
                                     @if(mensaje.estado === 'Error'){
                                         <span class="error-indicator">⚠</span>
                                     }
