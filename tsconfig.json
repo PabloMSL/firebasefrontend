@@ -13,7 +13,10 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
-    "module": "preserve"
+    "module": "ESNext",         // <--- CAMBIA 'preserve' POR 'ESNext'
+    "moduleResolution": "bundler", // <--- ASEGÚRATE DE QUE ESTO ESTÉ ASÍ
+    "useDefineForClassFields": false,
+    "lib": ["ES2022", "dom"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

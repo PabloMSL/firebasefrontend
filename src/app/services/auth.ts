@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Auth, user, User} from '@angular/fire/auth';
 import { Usuario } from '../../models/usuario';
 import { map } from 'rxjs';
-import { GoogleAuthProvider } from 'firebase/auth';
-import { signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider } from '@angular/fire/auth';
+import { signInWithPopup, signOut } from '@angular/fire/auth';
 
 @Injectable({
   providedIn: "root"
@@ -24,13 +24,16 @@ export class AuthService {
   async iniciarSesion(): Promise< Usuario | null >{
     try{
 
+      console.log('inicio la funcion iniciar sesion')
       const proveedor = new GoogleAuthProvider;
 
       //controladores
       proveedor.addScope('email')
       proveedor.addScope('profile')
 
+      console.log('antes')
       const resultado = await signInWithPopup(this.auth, proveedor);
+      console.log('despues')
       const usuarioFirebase = resultado.user;
 
       if(usuarioFirebase){
