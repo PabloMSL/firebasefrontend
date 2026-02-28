@@ -1,9 +1,11 @@
-import { Injectable, inject } from '@angular/core';
-import { Firestore, collection } from '@angular/fire/firestore';
-import { MensajeChat } from '../../models/chat';
+import { Injectable, Query, inject } from '@angular/core';
+import { Firestore, QuerySnapshot, collection, onSnapshot, query, where } from '@angular/fire/firestore';
+import { ConversacionChat, MensajeChat } from '../../models/chat';
 import { addDoc, Timestamp } from 'firebase/firestore';
 import { __awaiter } from 'tslib';
-import { interval } from 'rxjs';
+import { Observable } from 'rxjs';
+import { DocumentData } from '@angular/fire/compat/firestore';
+
 
 @Injectable({
   providedIn: "root"
@@ -47,11 +49,68 @@ export class FirebaseService {
         stack: error.stack
       })
     }
+  }
+  // filtrar mensajes por usuario
+  obtenerMensajesusuario(usuarioId: String): Observable<MensajeChat[]>{
+    return new Observable (observer =>{
+      const consulta = query(
+        collection(this.firestore, "mensajes"),
+        where('usuarioId', "==" , usuarioId)
+      )
+      // configurar el listener para que funcione en tiempo real snapshot
+      const unsubscribe = onSnapshot(
+        consulta,
+        (snapshot: QuerySnapshot<DocumentData>)=>{
+          const mensajes : MensajeChat[] = snapshot.docs.map( doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              usuarioId: data['usuarioId'],
+              contenido: data['contenido'],
+              tipo: data['tipo'],
+              estado: data['estado'],
+              // recordamos que firebase guarda timestamp y angular guarda date
+              fechaEnvio: data['fechaEnvio'].toDate()
+            } as MensajeChat;
+          });
+          //ordenar los mensajes del mas reciente al mas antiguo
+          mensajes.sort((a, b) => a.fechaEnvio.getTime() - b.fechaEnvio.getTime())
 
-    obtenerMensajesusuario(userId: int): observable${
-
-      // filtrar mensajes por usuario
+          observer.next(mensajes);
+        },
+        error => {
+          console.error("Error al escuchar los mensajes");
+          observer.error(error);
+        }
+      );
+      // se retorna una dessuscripcion
+      return ()=>{
+        unsubscribe;
+      }
+    });
+  }
+  async guardarConversacion(conversacion: ConversacionChat):Promise<void>{
+    try{
+      const coleccionconversaciones = collection(this.firestore, 'conversaciones')
+      // preparar las conversaciones para enviarlas a firestore
+      const conversacionGuardar = {
+        ...conversacion,
+        fechaCreacion: Timestamp.fromDate(conversacion.fechaCreacion),
+        ultimaActividad: Timestamp.fromDate(conversacion.ultimaActividad),
+        // conversion de la fechaEnvio del mensajeChat
+        mensajes: conversacion.mensajes.map(mensaje =>({
+          ...mensaje,
+          fechaEnvio: Timestamp.fromDate(mensaje.fechaEnvio)
+        }))
+      };
+      await addDoc(coleccionconversaciones, conversacionGuardar)
+    }catch(error){
+      console.error('Error al guardar la conversacion', error)
+      throw error;
     }
   }
+
+   
 }
+
 
