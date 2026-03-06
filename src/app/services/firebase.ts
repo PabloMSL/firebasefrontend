@@ -1,7 +1,6 @@
 import { Injectable, Query, inject } from '@angular/core';
-import { Firestore, QuerySnapshot, collection, onSnapshot, query, where } from '@angular/fire/firestore';
+import { Firestore, QuerySnapshot, collection, onSnapshot, query, where, addDoc,  Timestamp} from '@angular/fire/firestore';
 import { ConversacionChat, MensajeChat } from '../../models/chat';
-import { addDoc, Timestamp } from 'firebase/firestore';
 import { __awaiter } from 'tslib';
 import { Observable } from 'rxjs';
 import { DocumentData } from '@angular/fire/compat/firestore';
@@ -17,6 +16,7 @@ export class FirebaseService {
   // Funcion para guardar el mensaje
   async guardarMensaje(mensaje: MensajeChat): Promise<void>{
     try{
+      console.log('ingreso a guardar mensaje')
       // Revisar si viene sin usuarioID
       if(!mensaje.usuarioId){
         // devuelvo que el mensaje debe tener un usuarioId
@@ -35,11 +35,12 @@ export class FirebaseService {
         usuarioId : mensaje.usuarioId,
         contenido : mensaje.contenido,
         tipo: mensaje.tipo,
-        estado: mensaje.estado,
+        estado: mensaje.estado || "Enviado",
         //fecha es de tipo TIMESTAMP y necesito pasarla a date
         fechaEnvio: Timestamp.fromDate(mensaje.fechaEnvio)
       };
 
+      console.log("Datos a enviar: ", mensajeGuardar)
       const docRef = await addDoc(coleccionMensajes, mensajeGuardar)
     }catch(error: any){
       console.error(' Error al guardar el mensaje en firestore')
@@ -51,10 +52,10 @@ export class FirebaseService {
     }
   }
   // filtrar mensajes por usuario
-  obtenerMensajesusuario(usuarioId: String): Observable<MensajeChat[]>{
+  obtenerMensajesusuario(usuarioId: string): Observable<MensajeChat[]>{
     return new Observable (observer =>{
       const consulta = query(
-        collection(this.firestore, "mensajes"),
+        collection(this.firestore, "Mensajes"),
         where('usuarioId', "==" , usuarioId)
       )
       // configurar el listener para que funcione en tiempo real snapshot
@@ -84,9 +85,7 @@ export class FirebaseService {
         }
       );
       // se retorna una dessuscripcion
-      return ()=>{
-        unsubscribe;
-      }
+      return ()=>unsubscribe()
     });
   }
   async guardarConversacion(conversacion: ConversacionChat):Promise<void>{
