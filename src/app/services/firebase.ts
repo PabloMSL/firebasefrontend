@@ -73,7 +73,7 @@ export class FirebaseService {
               // recordamos que firebase guarda timestamp y angular guarda date
               fechaEnvio: data['fechaEnvio'].toDate()
             } as MensajeChat;
-          });
+          })
           //ordenar los mensajes del mas reciente al mas antiguo
           mensajes.sort((a, b) => a.fechaEnvio.getTime() - b.fechaEnvio.getTime())
 
