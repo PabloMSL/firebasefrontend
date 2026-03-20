@@ -54,86 +54,69 @@ export class ChatService {
       this.mensajeSubject.next([]);
     }
   }
-  async enviarMensaje(contenidoMensaje: string): Promise<void>{
-    const usuarioActual = this.authService.obtenerUsuario()
+  async enviarMensaje(contenidoMensaje: string): Promise<void> {
+    const usuarioActual = this.authService.obtenerUsuario();
 
-    if(!usuarioActual){
-      console.error('No hay un usuario autenticado');
-      throw Error;
-    }
-    if(!contenidoMensaje.trim()){
-      return ;
-    }
-    const mensajeUsuario: MensajeChat= {
+    if (!usuarioActual || !contenidoMensaje.trim()) return;
+
+    const mensajeUsuario: MensajeChat = {
       usuarioId: usuarioActual.uid,
       contenido: contenidoMensaje.trim(),
       fechaEnvio: new Date(),
       estado: 'Enviado',
       tipo: 'Usuario',
-    }
+    };
+
     try {
-      const mensajeDelUsuario = this.mensajeSubject.value;
+    // 1. Actualizar UI inmediatamente
+    this.mensajeSubject.next([...this.mensajeSubject.value, mensajeUsuario]);
+    
+    // 2. Guardar en Firebase (fuego y olvido o esperar)
+    await this.firebaseService.guardarMensaje(mensajeUsuario).catch(e => 
+      console.error('Error guardando en Firebase:', e)
+    );
 
-      const nuevoMensajeEncontrado = [...mensajeDelUsuario, mensajeUsuario]
-      this.mensajeSubject.next(nuevoMensajeEncontrado)
-      try {
-        await this.firebaseService.guardarMensaje(mensajeUsuario);
-      } catch (firestoreError) {
-        console.error('No se pudo guardar el mensaje del usuario', firestoreError)
-      }
+    this.asistenteRespondiendo.next(true);
 
-      this.asistenteRespondiendo.next(true)
+    // 3. Obtener respuesta de Gemini
+    const historialParaGemini = this.geminiService.convertirHistorialGemini(
+      this.mensajeSubject.value.slice(-6)
+    );
 
-      const mensajesActuales = this.mensajeSubject.value;
+    const respuestaDelAsistente = await firstValueFrom(
+      this.geminiService.enviarMensaje(contenidoMensaje, historialParaGemini)
+    );
 
-      
-      const historialParaGemini = this.geminiService.convertirHistorialGemini(
-        mensajesActuales.slice(-6)
-      );
-      const respuestaDelAsistente = await firstValueFrom(
-        this.geminiService.enviarMensaje(contenidoMensaje, historialParaGemini)
-      )
+    const mensajeAsistente: MensajeChat = {
+      usuarioId: usuarioActual.uid,
+      contenido: respuestaDelAsistente,
+      fechaEnvio: new Date(),
+      estado: 'Enviado',
+      tipo: 'Asistente',
+    };
 
-      // Configurar mensajes del asistente
+    // 4. Actualizar UI con respuesta
+    this.mensajeSubject.next([...this.mensajeSubject.value, mensajeAsistente]);
+    await this.firebaseService.guardarMensaje(mensajeAsistente);
 
-      const mensajeAsistente: MensajeChat = {
-        usuarioId: usuarioActual.uid,
-        contenido: respuestaDelAsistente,
-        fechaEnvio: new Date(),
-        estado: 'Enviado',
-        tipo: 'Asistente',
-      };
-      const mensajeActualizados = this.mensajeSubject.value
-
-      const nuevoMensajeEncontradoAsis= [...mensajeActualizados, mensajeAsistente]
-      this.mensajeSubject.next(nuevoMensajeEncontradoAsis);
-
-      try {
-        await this.firebaseService.guardarMensaje(mensajeAsistente)
-      } catch (firestoreError) {
-        console.error('No se pudo guardar el mensaje del asistente', firestoreError)
-      }
-
-    } catch (error) {
-      console.error('Error al procesar el mensaje', error)
-          //generar un instancia del objeto en caso de que haya un error.
-     const mensajeError: MensajeChat = {
-        usuarioId: usuarioActual.uid,
-        contenido: 'Lo sentimos no se pudo procesar el mensaje',
+    } catch (error: any) {
+      console.error('Error al procesar el mensaje', error); 
+      const mensajeError: MensajeChat = {
+        usuarioId: usuarioActual?.uid || '',
+        contenido: error.message || 'Lo sentimos, no se pudo procesar el mensaje',
         fechaEnvio: new Date(),
         estado: 'Error',
         tipo: 'Asistente',
       };
-      try {
-        await this.firebaseService.guardarMensaje(mensajeError);
-      } catch (saveError) {
-        console.error('No se pudo guardar el mensaje de error', saveError);
-        const mensajeActual = this.mensajeSubject.value;
-        this.mensajeSubject.next([...mensajeActual, mensajeError]);
-      }
-      throw error;
-    }finally{
-      this.asistenteRespondiendo.next(false)
+
+      // Actualizamos el Subject para que el usuario vea el error en el chat
+      this.mensajeSubject.next([...this.mensajeSubject.value, mensajeError]);
+    
+      // Intentamos persistir el error en Firebase
+      await this.firebaseService.guardarMensaje(mensajeError).catch(e => console.log("Firebase Offline"));
+
+    } finally {
+      this.asistenteRespondiendo.next(false);
     }
   }
   limpiarChat(): void{

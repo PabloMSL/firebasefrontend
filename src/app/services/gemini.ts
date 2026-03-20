@@ -30,7 +30,7 @@ interface SafetySettings{
 }
 
 interface RespuestaGemini{
-  candidate:{
+  candidates:{
     content:{
       parts:{
         text: string;
@@ -61,7 +61,7 @@ export class GeminiService {
 
   enviarMensaje(mensaje: string, historialPrevio: ContentGemini[]=[]): Observable<string>{
     // verificar si la url esta bien configurada
-    if(!this.apiKey || this.apiKey ==='Tu_apiKey_de_Gemini'){
+    if(!this.apiKey || this.apiKey.length < 10){
       console.error('Error la api key no esta configurada')
       return throwError(()=> new Error('Api de gemini no configurada corectamente'))
     }
@@ -133,8 +133,8 @@ export class GeminiService {
     .pipe(
       map( respuesta => {
         //Vamos a revisar que la respuesta tenga un formato correcto
-        if(respuesta.candidate && respuesta.candidate.length>0){
-          const candidate = respuesta.candidate[0];
+        if(respuesta.candidates && respuesta.candidates.length>0){
+          const candidate = respuesta.candidates[0];
           if(candidate.content && candidate.content.parts && candidate.content.parts.length>0){
             let contenidoRespuesta = candidate.content.parts[0].text;
 
@@ -190,9 +190,13 @@ export class GeminiService {
   }
 
 
-  verificarConfiguracion(): boolean{
-    const configuracionValida = !!(this.apiKey && this.apiKey !==
-      "Tu_api_key_de_gemini" && this.apiUrl);
-      return configuracionValida
+  verificarConfiguracion(): boolean {
+  // Verificamos que existan, que no sean solo espacios y que tengan un largo mínimo razonable
+  return !!(
+    this.apiKey && 
+    this.apiKey.trim().length > 10 && 
+    this.apiUrl && 
+    this.apiUrl.includes('https')
+  ); 
   }
 }
