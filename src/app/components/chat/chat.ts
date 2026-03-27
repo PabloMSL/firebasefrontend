@@ -167,10 +167,10 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
     this.suscripciones.forEach(sub => sub.unsubscribe)
   }
 
-  manejarTeclaPresionada(evento: KeyboardEvent){
-    if(evento.key === "Enter" && !evento.shiftKey){
-      evento.preventDefault();
-      this.enviarMensaje
+  manejarTeclaPresionada(event: KeyboardEvent){
+    if(event.key === "Enter" && !event.shiftKey){
+      event.preventDefault();
+      this.enviarMensaje()
     }
   }
   async cerrarSesion(): Promise<void>{
